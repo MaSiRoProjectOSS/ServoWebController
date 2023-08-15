@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link href='/general.css' rel='stylesheet' type='text/css' media='all'>
+    <link href='/roundslider.min.css' rel='stylesheet' type='text/css' media='all'>
+    <link href='/servo_controller.css' rel='stylesheet' type='text/css' media='all'>
+    <script type='text/javascript' src='/jquery-1.11.3.min.js'></script>
+    <script type='text/javascript' src='/roundslider.min.js'></script>
+    <script type='text/javascript' src='/ajax.js'></script>
+    <script type='text/javascript' src='/servo_controller.js'></script>
+    <title>Servo Web Controller</title>
+</head>
+
+<body style='padding: 10px 0 0 20px; font-family: monospace;'>
+    <article class='article_right'>
+        <p><a href='/update' target='_self'>OTA</a>&nbsp;&nbsp;<a href='/network' target='_self'>Network</a></p>
+    </article>
+    <article class='article_left pos_abs'>
+        <h1>Servo Controller</h1>
+        <div class='types visibility_hidden'>
+            <details open>
+                <summary>GROVE</summary>
+                <div class='control'>
+                    <div id='slider_grove'></div><br>
+                    <div>
+                        <p>
+                            <button type='button' id='sync_grove'>synchronous</button>
+                            <input type='checkbox' id='reversal_grove'>reversal</input>
+                        </p>
+                        <p>
+                            <button type='button' id='max_grove'>MAX</button>
+                            <button type='button' id='min_grove'>MIN</button>
+                            <button type='button' id='reset_grove'>RESET</button>
+                        </p>
+                        <details open>
+                            <summary>Parameter</summary>
+                            <li>
+                                <label>limit [deg] : </label>
+                                <input type='number' id='limit_min_grove' name='limit_min_grove' step=1 min=-360 max=360 value=0 />
+                                <label>to</label>
+                                <input type='number' id='limit_max_grove' name='limit_max_grove' step=1 min=-360 max=360 value=180 />
+                            </li>
+                            <li>
+                                <label>zero-point [deg] : </label>
+                                <input type='number' id='origin_grove' name='origin_grove' step=1 min=-360 max=360 value=0 />
+                                <label>&nbsp;&nbsp;</label>
+                                <button type='button' id='save_grove'>save</button>
+                            </li>
+                        </details><br>
+                        <details>
+                            <summary>Servo setting</summary>
+                            <li>
+                                <label>PERIOD [Hz] :</label>
+                                <input type='number' id='period_grove' name='period_grove' min=10 max=2500 value=20 />
+                            </li>
+                            <li>
+                                <label>PULSE [us] :</label>
+                                <input type='number' id='pulse_min_grove' name='pulse_min_grove' step=25 min=100 max=10000 value=500 />
+                                <label>to</label>
+                                <input type='number' id='pulse_max_grove' name='pulse_max_grove' step=25 min=100 max=10000 value=2400 />
+                            </li>
+                            <li>
+                                <label>ANGLE [deg] :</label>
+                                <input type='number' id='angle_min_grove' name='angle_min_grove' step=1 min=-360 max=360 value=0 />
+                                <label>to</label>
+                                <input type='number' id='angle_max_grove' name='angle_max_grove' step=1 min=-360 max=360 value=180 />
+                            </li>
+                            <p>
+                                <button type='button' id='attach_grove'>reattach</button>
+                                <button type='button' id='load_grove'>default</button>
+                            </p>
+                        </details>
+                    </div>
+                </div>
+            </details>
+        </div>
+        <div class='types visibility_hidden'>
+            <details open>
+                <summary>DIP</summary>
+                <div class='control'>
+                    <div id='slider_dip'></div><br>
+                    <div>
+                        <p>
+                            <button type='button' id='sync_dip'>synchronous</button>
+                            <input type='checkbox' id='reversal_dip'>reversal</input>
+                        </p>
+                        <p>
+                            <button type='button' id='max_dip'>MAX</button>
+                            <button type='button' id='min_dip'>MIN</button>
+                            <button type='button' id='reset_dip'>RESET</button>
+                        </p>
+                        <details open>
+                            <summary>Parameter</summary>
+                            <li>
+                                <label>limit [deg] : </label>
+                                <input type='number' id='limit_min_dip' name='limit_min_dip' step=1 min=-360 max=360 value=0 />
+                                <label>to</label>
+                                <input type='number' id='limit_max_dip' name='limit_max_dip' step=1 min=-360 max=360 value=180 />
+                            </li>
+                            <li>
+                                <label>zero-point [deg] : </label>
+                                <input type='number' id='origin_dip' name='origin_dip' step=1 min=-360 max=360 value=0 />
+                                <label>&nbsp;&nbsp;</label>
+                                <button type='button' id='save_dip'>save</button>
+                            </li>
+                        </details><br>
+                        <details>
+                            <summary>Servo setting</summary>
+                            <li>
+                                <label>PERIOD [Hz] :</label>
+                                <input type='number' id='period_dip' name='period_dip' min=10 max=2500 value=20 />
+                            </li>
+                            <li>
+                                <label>PULSE [us] :</label>
+                                <input type='number' id='pulse_min_dip' name='pulse_min_dip' step=25 min=100 max=10000 value=500 />
+                                <label>to</label>
+                                <input type='number' id='pulse_max_dip' name='pulse_max_dip' step=25 min=100 max=10000 value=2400 />
+                            </li>
+                            <li>
+                                <label>ANGLE [deg] :</label>
+                                <input type='number' id='angle_min_dip' name='angle_min_dip' step=1 min=-360 max=360 value=0 />
+                                <label>to</label>
+                                <input type='number' id='angle_max_dip' name='angle_max_dip' step=1 min=-360 max=360 value=180 />
+                            </li>
+                            <p>
+                                <button type='button' id='attach_dip'>reattach</button>
+                                <button type='button' id='load_dip'>default</button>
+                            </p>
+                        </details>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </article>
+</body>
+
+</html>

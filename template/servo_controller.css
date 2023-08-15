@@ -1,0 +1,33 @@
+.pos_abs {
+    position: absolute;
+}
+
+h1 span {
+    font-size: 0.6em;
+}
+
+.types2 {
+    display: inline-block;
+}
+
+.types {
+    padding: 10px 30px;
+    border: 1px dotted;
+    margin-right: 20px;
+    overflow: hidden;
+    float: left;
+}
+
+.container {
+    height: 180px;
+    width: 400px;
+}
+
+.container>div {
+    float: left;
+}
+
+.control {
+    margin-top: 20px;
+    margin-right: 70px;
+}
