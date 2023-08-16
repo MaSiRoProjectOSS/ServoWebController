@@ -26,6 +26,9 @@ void ServoController::init(ConnectType type, int pin)
     if (0 <= index) {
         this->pin[index] = pin;
         this->attach(type);
+        if (true == this->config[index].initialize_at_startup) {
+            this->set_speed(type, this->config[index].origin);
+        }
     }
 }
 int ServoController::_get_index(ConnectType type, bool check_pin)
@@ -65,14 +68,14 @@ int ServoController::set_speed(ConnectType type, int speed)
     int index  = this->_get_index(type);
     if (0 <= index) {
         if (true == this->servo[index].attached()) {
-            if (speed < this->config[index].angle_min) {
-                speed = this->config[index].angle_min;
-            } else if (speed > this->config[index].angle_max) {
-                speed = this->config[index].angle_max;
+            if (speed < this->config[index].limit_min) {
+                speed = this->config[index].limit_min;
+            } else if (speed > this->config[index].limit_max) {
+                speed = this->config[index].limit_max;
             }
             this->servo[index].write(speed);
-            this->config[index].current = this->servo[index].read();
             result                      = this->servo[index].read();
+            this->config[index].current = result;
         }
     }
     return result;
