@@ -1,23 +1,9 @@
 if (!JS_SCtrl) {
     var grove = {
-        limit_min: 0, limit_max: 180,
-        origin: 0,
-        period: 20,
-        pulse_min: 500, pulse_max: 2400,
-        angle_min: 0, angle_max: 180,
-        sync_val: 0,
-        current: 0,
-        reversal: false
+        current: 0
     }
     var dip = {
-        limit_min: 0, limit_max: 180,
-        origin: 0,
-        period: 20,
-        pulse_min: 500, pulse_max: 2400,
-        angle_min: 0, angle_max: 180,
-        sync_val: 0,
-        current: 0,
-        reversal: false
+        current: 0
     }
 
     var JS_Slider = {
@@ -29,14 +15,14 @@ if (!JS_SCtrl) {
             JS_Slider.set_sync_val();
         },
         set_max: function (type, val) {
-            const elm = $('#slider_grove').data('roundSlider');
+            const elm = $('#slider_' + type).data('roundSlider');
             elm.options.max = val;
             if (val < elm.getValue()) {
                 JS_Slider.set_value(type, val);
             }
         },
         set_min: function (type, val) {
-            const elm = $('#slider_grove').data('roundSlider');
+            const elm = $('#slider_' + type).data('roundSlider');
             elm.options.min = val;
             if (val > elm.getValue()) {
                 JS_Slider.set_value(type, val);
@@ -64,10 +50,17 @@ if (!JS_SCtrl) {
         tip_txt: function (args) {
             var append = '';
             if (args.id == 'slider_grove') {
-                val = ((args.value - grove.angle_min) / (grove.angle_max - grove.angle_min)) * 100;
-                append = '<br>' + val.toFixed(0) + '%';
+                let min = JS_SCtrl.gi('angle_min_grove');
+                let max = JS_SCtrl.gi('angle_max_grove');
+                if (min == max) { val = 100; } else {
+                    val = ((args.value - min) / (max - min)) * 100;
+                } append = '<br>' + val.toFixed(0) + '%';
             } else if (args.id == 'slider_dip') {
-                val = ((args.value - dip.angle_min) / (dip.angle_max - dip.angle_min)) * 100;
+                let min = JS_SCtrl.gi('angle_min_dip');
+                let max = JS_SCtrl.gi('angle_max_dip');
+                if (min == max) { val = 100; } else {
+                    val = ((args.value - min) / (max - min)) * 100;
+                }
                 append = '<br>' + val.toFixed(0) + '%';
             }
             return args.value + append;
@@ -78,19 +71,21 @@ if (!JS_SCtrl) {
             if (undefined != s_g) {
                 if (undefined != s_d) {
                     val_d = parseInt(s_d.getValue());
+                    val_g = parseInt(s_g.getValue());
+                    let sy_g = JS_SCtrl.gi('sync_grove');
+                    let sy_d = JS_SCtrl.gi('sync_dip');
                     if (true == s_g.options.disabled) {
-                        if (true == grove.reversal) {
-                            s_g.setValue(dip.sync_val - val_d + grove.sync_val);
+                        if (true == document.getElementById('reversal_grove').checked) {
+                            s_g.setValue(sy_d - val_d + sy_g);
                         } else {
-                            s_g.setValue(val_d - dip.sync_val + grove.sync_val);
+                            s_g.setValue(val_d - sy_d + sy_g);
                         }
                     }
-                    val_g = parseInt(s_g.getValue());
                     if (true == s_d.options.disabled) {
-                        if (true == dip.reversal) {
-                            s_d.setValue(grove.sync_val - val_g + dip.sync_val);
+                        if (true == document.getElementById('reversal_dip').checked) {
+                            s_d.setValue(sy_g - val_g + sy_d);
                         } else {
-                            s_d.setValue(val_g - grove.sync_val + dip.sync_val);
+                            s_d.setValue(val_g - sy_g + sy_d);
                         }
                     }
                 }
@@ -120,73 +115,86 @@ if (!JS_SCtrl) {
     }
 
     var JS_SCtrl = {
-        save_before: function (type, data) {
-            data.limit_min = document.getElementById('limit_min_' + type).value;
-            data.limit_max = document.getElementById('limit_max_' + type).value;
-            data.origin = document.getElementById('origin_' + type).value;
-            data.period = document.getElementById('period_' + type).value;
-            data.pulse_min = document.getElementById('pulse_min_' + type).value;
-            data.pulse_max = document.getElementById('pulse_max_' + type).value;
-            data.angle_min = document.getElementById('angle_min_' + type).value;
-            data.angle_max = document.getElementById('angle_max_' + type).value;
-            //data.sync_val = 0;
-            data.current = JS_Slider.get_value(type);
-            data.reversal = document.getElementById('reversal_' + type).checked;
+        gi: function (id) {
+            return parseInt(document.getElementById(id).value);
         },
         save: function (type, data, mode) {
-            JS_SCtrl.save_before(type, data);
+            var sync_enable = false;
             JS_AJAX.get('/set/config' + '?mode=' + mode + '&type=' + type
-                + '&ln=' + data.limit_min
-                + '&lx=' + data.limit_max
-                + '&o=' + data.origin
-                + '&h=' + data.period
-                + '&pn=' + data.pulse_min
-                + '&px=' + data.pulse_max
-                + '&an=' + data.angle_min
-                + '&ax=' + data.angle_max
-                + '&s=' + data.sync_val
-                + '&r=' + (data.reversal ? 1 : 0)
+                + '&ln=' + JS_SCtrl.gi('limit_min_' + type)
+                + '&lx=' + JS_SCtrl.gi('limit_max_' + type)
+                + '&o=' + JS_SCtrl.gi('origin_' + type)
+                + '&h=' + JS_SCtrl.gi('period_' + type)
+                + '&pn=' + JS_SCtrl.gi('pulse_min_' + type)
+                + '&px=' + JS_SCtrl.gi('pulse_max_' + type)
+                + '&an=' + JS_SCtrl.gi('angle_min_' + type)
+                + '&ax=' + JS_SCtrl.gi('angle_max_' + type)
+                + '&se=' + (document.getElementById('sync_' + type).disabled ? 0 : 1)
+                + '&sv=' + JS_SCtrl.gi('sync_' + type)
+                + '&r=' + (document.getElementById('reversal_' + type).checked ? 1 : 0)
             ).then(
                 ok => {
-                    JS_SCtrl.copy_data(ok.data.dip, dip);
-                    JS_SCtrl.init_elm('dip', dip);
+                    if (type == 'grove') {
+                        JS_SCtrl.init_elm('grove', ok.data.grove);
+                    } else if (type == 'dip') {
+                        JS_SCtrl.init_elm('dip', ok.data.dip);
+                    }
                 }
                 , error => alert(error.status.messages)
             );
         },
+        set_elm: function (id, val) {
+            if (undefined != val) {
+                document.getElementById(id).value = val;
+            }
+        },
         set_elm_max: function (id, val) {
-            const elm = document.getElementById(id);
-            elm.max = val;
-            if (val < elm.value) {
-                elm.value = val;
+            if (undefined != val) {
+                const elm = document.getElementById(id);
+                elm.max = val;
+                if (val < elm.value) {
+                    JS_SCtrl.set_elm(id, val);
+                }
             }
         },
         set_elm_min: function (id, val) {
-            const elm = document.getElementById(id);
-            elm.min = val;
-            if (val > elm.value) {
-                elm.value = val;
+            if (undefined != val) {
+                const elm = document.getElementById(id);
+                elm.min = val;
+                if (val > elm.value) {
+                    JS_SCtrl.set_elm(id, val);
+                }
             }
         },
         set_limit_max: function (type, val) {
-            JS_SCtrl.set_elm_max('origin_' + type, val);
+            var id = 'origin_' + type;
+            JS_SCtrl.set_elm_max(id, val);
+            const elm = document.getElementById(id);
+            if (val < elm.min) {
+                JS_SCtrl.set_elm_min(id, val);
+            }
             JS_Slider.set_max(type, val);
         },
         set_limit_min: function (type, val) {
-            JS_SCtrl.set_elm_min('origin_' + type, val);
+            var id = 'origin_' + type;
+            JS_SCtrl.set_elm_min(id, val);
+            const elm = document.getElementById(id);
+            if (val > elm.max) {
+                JS_SCtrl.set_elm_max(id, val);
+            }
             JS_Slider.set_min(type, val);
         },
         set_angle_max: function (type, val) {
             JS_SCtrl.set_elm_max('limit_min_' + type, val);
             JS_SCtrl.set_elm_max('limit_max_' + type, val);
             JS_SCtrl.set_elm_max('angle_min_' + type, val);
-            JS_SCtrl.set_limit_max(type, parseInt(document.getElementById('limit_max_' + type).value));
+            JS_SCtrl.set_limit_max(type, JS_SCtrl.gi('limit_max_' + type));
         },
         set_angle_min: function (type, val) {
             JS_SCtrl.set_elm_min('limit_min_' + type, val);
             JS_SCtrl.set_elm_min('limit_max_' + type, val);
             JS_SCtrl.set_elm_min('angle_max_' + type, val);
-            JS_SCtrl.set_limit_min(type, parseInt(document.getElementById('limit_min_' + type).value));
+            JS_SCtrl.set_limit_min(type, JS_SCtrl.gi('limit_min_' + type));
         },
         change_disabled: function (type, mode) {
             document.getElementById('sync_' + type).disabled = mode;
@@ -205,46 +213,22 @@ if (!JS_SCtrl) {
                 $(id).roundSlider('disable');
                 result = false;
             }
-            grove.sync_val = JS_Slider.get_value('grove');
-            dip.sync_val = JS_Slider.get_value('dip');
+            document.getElementById('sync_grove').value = JS_Slider.get_value('grove');
+            document.getElementById('sync_dip').value = JS_Slider.get_value('dip');
             return result;
         },
         begin: function () {
             JS_AJAX.get('/get/config').then(
-                ok => JS_SCtrl.set_config(ok)
+                ok => JS_SCtrl.open(ok.data.grove, ok.data.dip)
                 , error => alert('[' + error.status.messages + ']\\n\\nCommunication failed.\\nPlease try to reboot.')
             );
         },
-        cp: function (src, dst) {
-            if (undefined != src) {
-                dst = src;
-            }
-        },
-        copy_data: function (src, dst) {
-            if (undefined != src) {
-                JS_SCtrl.cp(src.limit_min, dst.limit_min);
-                JS_SCtrl.cp(src.limit_max, dst.limit_max);
-                JS_SCtrl.cp(src.origin, dst.origin);
-                JS_SCtrl.cp(src.period, dst.period);
-                JS_SCtrl.cp(src.pulse_min, dst.pulse_min);
-                JS_SCtrl.cp(src.pulse_max, dst.pulse_max);
-                JS_SCtrl.cp(src.angle_min, dst.angle_min);
-                JS_SCtrl.cp(src.angle_max, dst.angle_max);
-                JS_SCtrl.cp(src.sync_val, dst.sync_val);
-                JS_SCtrl.cp(src.current, dst.current);
-            }
-        },
-        set_config: function (result) {
-            JS_SCtrl.copy_data(result.data.grove, grove);
-            JS_SCtrl.copy_data(result.data.dip, dip);
-            JS_SCtrl.open();
-        },
-        limit_vale: function (data, val) {
-            if (val > data.limit_max) { val = data.limit_max; }
-            if (val < data.limit_min) { val = data.limit_min; }
+        limit_vale: function (type, val) {
+            if (val > JS_SCtrl.gi('limit_max_' + type)) { val = JS_SCtrl.gi('limit_max_' + type); }
+            if (val < JS_SCtrl.gi('limit_min_' + type)) { val = JS_SCtrl.gi('limit_min_' + type); }
             return val;
         },
-        open: function () {
+        open: function (grove, dip) {
             let elements = document.getElementsByClassName('types');
             Array.prototype.forEach.call(elements, function (element) {
                 element.classList.remove('visibility_hidden');
@@ -256,19 +240,18 @@ if (!JS_SCtrl) {
                 document.getElementById('reversal_dip').checked = document.getElementById('reversal_grove').checked;;
             });
             document.getElementById('sync_grove').addEventListener('click', () => {
-                dip.reversal = document.getElementById('reversal_grove').checked;
                 JS_SCtrl.change_disabled('dip', !JS_SCtrl.enable_sync('#slider_dip'));
             });
             document.getElementById('max_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', parseInt(document.getElementById('limit_max_grove').value));
+                JS_Slider.set_value('grove', JS_SCtrl.gi('limit_max_grove'));
                 JS_Slider.send();
             });
             document.getElementById('reset_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', parseInt(document.getElementById('origin_grove').value));
+                JS_Slider.set_value('grove', JS_SCtrl.gi('origin_grove'));
                 JS_Slider.send();
             });
             document.getElementById('min_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', parseInt(document.getElementById('limit_min_grove').value));
+                JS_Slider.set_value('grove', JS_SCtrl.gi('limit_min_grove'));
                 JS_Slider.send();
             });
             document.getElementById('save_grove').addEventListener('click', () => {
@@ -280,27 +263,25 @@ if (!JS_SCtrl) {
             document.getElementById('load_grove').addEventListener('click', () => {
                 JS_AJAX.get('/get/config').then(
                     ok => {
-                        JS_SCtrl.copy_data(ok.data.grove, grove);
-                        JS_SCtrl.init_elm('grove', grove);
+                        JS_SCtrl.init_elm('grove', ok.data.grove);
                     }
                     , error => alert(error.status.messages)
                 );
             });
 
             document.getElementById('sync_dip').addEventListener('click', () => {
-                grove.reversal = document.getElementById('reversal_dip').checked;
                 JS_SCtrl.change_disabled('grove', !JS_SCtrl.enable_sync('#slider_grove'));
             });
             document.getElementById('max_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', parseInt(document.getElementById('limit_max_dip').value));
+                JS_Slider.set_value('dip', JS_SCtrl.gi('limit_max_dip'));
                 JS_Slider.send();
             });
             document.getElementById('reset_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', parseInt(document.getElementById('origin_dip').value));
+                JS_Slider.set_value('dip', JS_SCtrl.gi('origin_dip'));
                 JS_Slider.send();
             });
             document.getElementById('min_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', parseInt(document.getElementById('limit_min_dip').value));
+                JS_Slider.set_value('dip', JS_SCtrl.gi('limit_min_dip'));
                 JS_Slider.send();
             });
             document.getElementById('save_dip').addEventListener('click', () => {
@@ -312,100 +293,101 @@ if (!JS_SCtrl) {
             document.getElementById('load_dip').addEventListener('click', () => {
                 JS_AJAX.get('/get/config').then(
                     ok => {
-                        JS_SCtrl.copy_data(ok.data.dip, dip);
-                        JS_SCtrl.init_elm('dip', dip);
+                        JS_SCtrl.init_elm('dip', ok.data.dip);
                     }
                     , error => alert(error.status.messages)
                 );
             });
 
             document.getElementById('limit_min_grove').addEventListener('change', (event) => {
-                grove.limit_min = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_limit_min('grove', grove.limit_min);
+                JS_SCtrl.set_limit_min('grove', parseInt(event.currentTarget.value));
             });
             document.getElementById('limit_max_grove').addEventListener('change', (event) => {
-                grove.limit_max = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_limit_max('grove', grove.limit_max);
+                JS_SCtrl.set_limit_max('grove', parseInt(event.currentTarget.value));
             });
-            document.getElementById('origin_grove').addEventListener('change', (event) => {
-                grove.origin = JS_SCtrl.limit_vale(grove, parseInt(event.currentTarget.value));
-            });
-            document.getElementById('period_grove').addEventListener('change', (event) => {
-                grove.period = parseInt(event.currentTarget.value);
-            });
+            //document.getElementById('origin_grove').addEventListener('change', (event) => {
+            //});
+            //document.getElementById('period_grove').addEventListener('change', (event) => {
+            //});
             document.getElementById('pulse_min_grove').addEventListener('change', (event) => {
-                grove.pulse_min = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_elm_min('pulse_max_grove', grove.pulse_min);
+                JS_SCtrl.set_elm_min('pulse_max_grove', parseInt(event.currentTarget.value));
             });
             document.getElementById('pulse_max_grove').addEventListener('change', (event) => {
-                grove.pulse_max = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_elm_max('pulse_min_grove', grove.pulse_max);
+                JS_SCtrl.set_elm_max('pulse_min_grove', parseInt(event.currentTarget.value));
             });
             document.getElementById('angle_min_grove').addEventListener('change', (event) => {
-                grove.angle_min = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_angle_min('grove', grove.angle_min);
+                JS_SCtrl.set_angle_min('grove', parseInt(event.currentTarget.value));
             });
             document.getElementById('angle_max_grove').addEventListener('change', (event) => {
-                grove.angle_max = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_angle_max('grove', grove.angle_max);
+                JS_SCtrl.set_angle_max('grove', parseInt(event.currentTarget.value));
             });
 
             document.getElementById('limit_min_dip').addEventListener('change', (event) => {
-                dip.limit_min = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_limit_min('dip', dip.limit_min);
+                JS_SCtrl.set_limit_min('dip', parseInt(event.currentTarget.value));
             });
             document.getElementById('limit_max_dip').addEventListener('change', (event) => {
-                dip.limit_max = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_limit_max('dip', dip.limit_max);
+                JS_SCtrl.set_limit_max('dip', parseInt(event.currentTarget.value));
             });
-            document.getElementById('origin_dip').addEventListener('change', (event) => {
-                dip.origin = JS_SCtrl.limit_vale(dip, parseInt(event.currentTarget.value));
-            });
-            document.getElementById('period_dip').addEventListener('change', (event) => {
-                dip.period = parseInt(event.currentTarget.value);
-            });
+            //document.getElementById('origin_dip').addEventListener('change', (event) => {
+            //});
+            //document.getElementById('period_dip').addEventListener('change', (event) => {
+            //});
             document.getElementById('pulse_min_dip').addEventListener('change', (event) => {
-                dip.pulse_min = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_elm_min('pulse_max_dip', dip.pulse_min);
+                JS_SCtrl.set_elm_min('pulse_max_dip', parseInt(event.currentTarget.value));
             });
             document.getElementById('pulse_max_dip').addEventListener('change', (event) => {
-                dip.pulse_max = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_elm_max('pulse_min_dip', dip.pulse_max);
+                JS_SCtrl.set_elm_max('pulse_min_dip', parseInt(event.currentTarget.value));
             });
             document.getElementById('angle_min_dip').addEventListener('change', (event) => {
-                dip.angle_min = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_angle_min('dip', dip.angle_min);
+                JS_SCtrl.set_angle_min('dip', parseInt(event.currentTarget.value));
             });
             document.getElementById('angle_max_dip').addEventListener('change', (event) => {
-                dip.angle_max = parseInt(event.currentTarget.value);
-                JS_SCtrl.set_angle_max('dip', dip.angle_max);
+                JS_SCtrl.set_angle_max('dip', parseInt(event.currentTarget.value));
             });
             JS_Slider.init_slider('#slider_grove');
             JS_Slider.init_slider('#slider_dip');
 
+            JS_SCtrl.init_elm('grove', grove);
+            JS_SCtrl.init_elm('dip', dip);
             JS_SCtrl.set_setting('grove', grove);
             JS_SCtrl.set_setting('dip', dip);
         },
         set_setting: function (type, data) {
-            JS_SCtrl.init_elm(type, data);
-            data.current = JS_SCtrl.limit_vale(data, data.current);
-            JS_Slider.set_value(type, data.current);
+            if (undefined != data) {
+                data.current = JS_SCtrl.limit_vale(type, data.current);
+                JS_Slider.set_value(type, data.current);
+                if (undefined != data.reversal) {
+                    document.getElementById('reversal_' + type).checked = data.reversal ? true : false;
+                }
+                if (undefined != data.sync_enable) {
+                    var id = '#slider_' + type;
+                    if (true == data.sync_enable) {
+                        $(id).roundSlider('enable');
+                    } else {
+                        $(id).roundSlider('disable');
+                    }
+                    JS_SCtrl.change_disabled(type, !JS_SCtrl.enable_sync(id));
+                }
+                JS_SCtrl.set_elm('sync_' + type, data.sync_value);
+            }
         },
         init_elm: function (type, data) {
-            JS_SCtrl.set_angle_min(type, data.angle_min);
-            JS_SCtrl.set_angle_max(type, data.angle_max);
-            JS_SCtrl.set_limit_min(type, data.limit_min);
-            JS_SCtrl.set_limit_max(type, data.limit_max);
-            JS_SCtrl.set_elm_min('pulse_max_' + type, data.pulse_min);
-            JS_SCtrl.set_elm_max('pulse_min_' + type, data.pulse_max);
-            document.getElementById('angle_min_' + type).value = data.angle_min;
-            document.getElementById('angle_max_' + type).value = data.angle_max;
-            document.getElementById('limit_min_' + type).value = data.limit_min;
-            document.getElementById('limit_max_' + type).value = data.limit_max;
-            document.getElementById('pulse_min_' + type).value = data.pulse_min;
-            document.getElementById('pulse_max_' + type).value = data.pulse_max;
-            document.getElementById('period_' + type).value = data.period;
-            document.getElementById('origin_' + type).value = data.origin;
+            if (undefined != data) {
+                JS_SCtrl.set_angle_min(type, data.angle_min);
+                JS_SCtrl.set_angle_max(type, data.angle_max);
+                JS_SCtrl.set_limit_min(type, data.limit_min);
+                JS_SCtrl.set_limit_max(type, data.limit_max);
+                JS_SCtrl.set_elm_min('pulse_max_' + type, data.pulse_min);
+                JS_SCtrl.set_elm_max('pulse_min_' + type, data.pulse_max);
+                JS_SCtrl.set_elm('angle_min_' + type, data.angle_min);
+                JS_SCtrl.set_elm('angle_max_' + type, data.angle_max);
+                JS_SCtrl.set_elm('limit_min_' + type, data.limit_min);
+                JS_SCtrl.set_elm('limit_max_' + type, data.limit_max);
+                JS_SCtrl.set_elm('pulse_min_' + type, data.pulse_min);
+                JS_SCtrl.set_elm('pulse_max_' + type, data.pulse_max);
+                JS_SCtrl.set_elm('period_' + type, data.period);
+                JS_SCtrl.set_elm('origin_' + type, data.origin);
+            }
         }
     }
 }

@@ -48,18 +48,51 @@ grove -- device_B : "Grove"
 
 Connect ATOM Lite and the servo according to the diagram below.
 
-<img name="Screen shot" src="https://raw.githubusercontent.com/MaSiRoProjectOSS/ServoWebController/master/wiring.png">
+<img name="Screen shot" src="https://raw.githubusercontent.com/MaSiRoProjectOSS/ServoWebController/master/wiring.png" style="width:40%">
 
 ## Installation
 
+* [TODO]
+  * リリースフォルダにバイナリファイルを上げる必要があります。
 リリースフォルダのbinファイルを格納してください。
+  * バイナリでの書き込み方法
+    * [Esptool.py Documentation](https://docs.espressif.com/projects/esptool/en/latest/esp32/)
+
+```bash
+# 動作例
+esptool.py --port COM3 -b 1500000 write_flash 0x00000 firmware.bin
+```
+
 
 This system is compiled using PlatformIO. Please install the extension from VS Code's extension recommendations. If you want to know more, check [here](https://docs.platformio.org/en/latest/).
 
 
 ## Usage
 
-TODO: Write usage instructions
+- Boot in AP Mode for connection.
+  - Perform WiFi configuration as needed.
+- Servo operation is triggered by moving the slider.
+- Press the sync button to simultaneously operate a separate connector (without synchronization).
+  - Check the reversal checkbox to enable reverse operation.
+- Press the MAX button to set it to the same value as the limit(max).
+- Press the MIN button to set it to the same value as the limit(min).
+- Press the RESET button to set it to the same value as the zero-point.
+- Press the SAVE button to store the settings in a file. (Not yet implemented)
+- Press the reattach button to reconnect with settings from ServoSetting.
+- Press the default button to load settings saved on the microcontroller.
+
+
+### Notes
+
+* When you start it for the first time, it will operate in AP mode.
+* You can join with the pass set in the definition "SETTING_WIFI_AP_DEFAULT_PASSWORD". [detail](https://github.com/MaSiRoProjectOSS/CushyWebServer#wifi-ap%E3%83%A2%E3%83%BC%E3%83%89%E6%8E%A5%E7%B6%9A%E8%A8%AD%E5%AE%9A)
+* At startup, it connects to the servo but remains inactive. This is to avoid any potential issues that could arise from returning to the initial position upon restarting
+* If you wish to modify the PIN for connection, you can redefine the value in the DEFINE section below.
+
+| DEFINE          | Default value |
+| --------------- | ------------- |
+| SERVO_GROVE_PIN | 26            |
+| SERVO_DIP_PIN   | 25            |
 
 ## Requirement
 
@@ -106,6 +139,11 @@ We offer heartfelt thanks to the open-source community for the invaluable gifts 
 
 [MIT License](./LICENSE)
 
+---
+
+<!--
+Apply styles when markdown
+-->
 
 <style>
   body {

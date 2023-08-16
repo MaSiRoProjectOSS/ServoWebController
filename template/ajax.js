@@ -3,6 +3,7 @@ if (!JS_AJAX) {
         post: function (url) { return JS_AJAX.debug_send("post", url); },
         get: function (url) { return JS_AJAX.debug_send("get", url); },
         debug_send: function (method, url) {
+            console.log("JS_AJAX.send(" + method + ", " + url + ")");
             return new Promise((resolve, reject) => {
                 if (0 <= url.indexOf("/set/value")) {
                     resolve({
@@ -12,26 +13,32 @@ if (!JS_AJAX) {
                         },
                         data: {
                             grove: {
-                                limit_min: 11,
-                                limit_max: 172,
-                                origin: 13,
-                                period: 24,
-                                pulse_min: 105,
-                                pulse_max: 2206,
-                                angle_min: 7,
-                                angle_max: 188,
-                                current: 9
+                                angle_max: 180,
+                                angle_min: 0,
+                                current: 0,
+                                limit_max: 180,
+                                limit_min: 0,
+                                origin: 0,
+                                period: 20,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 0
                             },
                             dip: {
-                                limit_min: 20,
-                                limit_max: 161,
-                                origin: 32,
-                                period: 23,
-                                pulse_min: 304,
-                                pulse_max: 4405,
-                                angle_min: 6,
-                                angle_max: 187,
-                                current: 8
+                                angle_max: 180,
+                                angle_min: 0,
+                                current: 0,
+                                limit_max: 180,
+                                limit_min: 0,
+                                origin: 0,
+                                period: 20,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 0
                             }
                         }
                     });
@@ -44,26 +51,32 @@ if (!JS_AJAX) {
                         },
                         data: {
                             grove: {
-                                limit_min: 11,
-                                limit_max: 172,
-                                origin: 13,
-                                period: 24,
-                                pulse_min: 105,
-                                pulse_max: 2206,
-                                angle_min: 7,
-                                angle_max: 188,
-                                current: 9
+                                angle_max: 180,
+                                angle_min: 0,
+                                current: 0,
+                                limit_max: 180,
+                                limit_min: 0,
+                                origin: 0,
+                                period: 20,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 0
                             },
                             dip: {
-                                limit_min: 20,
-                                limit_max: 161,
-                                origin: 32,
-                                period: 23,
-                                pulse_min: 304,
-                                pulse_max: 4405,
-                                angle_min: 6,
-                                angle_max: 187,
-                                current: 8
+                                angle_max: 180,
+                                angle_min: 0,
+                                current: 0,
+                                limit_max: 180,
+                                limit_min: 0,
+                                origin: 0,
+                                period: 20,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 0
                             }
                         }
                     });
@@ -76,26 +89,32 @@ if (!JS_AJAX) {
                         },
                         data: {
                             grove: {
-                                limit_min: 11,
-                                limit_max: 172,
-                                origin: 13,
-                                period: 24,
-                                pulse_min: 105,
-                                pulse_max: 2206,
-                                angle_min: 7,
-                                angle_max: 188,
-                                current: 9
+                                angle_max: 300,
+                                angle_min: 0,
+                                current: 150,
+                                limit_max: 200,
+                                limit_min: 100,
+                                origin: 175,
+                                period: 30,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 150
                             },
                             dip: {
-                                limit_min: 20,
-                                limit_max: 161,
-                                origin: 32,
-                                period: 23,
-                                pulse_min: 304,
-                                pulse_max: 4405,
-                                angle_min: 6,
-                                angle_max: 187,
-                                current: 8
+                                angle_max: 400,
+                                angle_min: 100,
+                                current: 250,
+                                limit_max: 300,
+                                limit_min: 200,
+                                origin: 225,
+                                period: 40,
+                                pulse_max: 2500,
+                                pulse_min: 400,
+                                reversal: 1,
+                                sync_enable: 1,
+                                sync_value: 250
                             }
                         }
                     });
