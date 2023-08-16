@@ -129,7 +129,7 @@ if (!JS_SCtrl) {
                 + '&px=' + JS_SCtrl.gi('pulse_max_' + type)
                 + '&an=' + JS_SCtrl.gi('angle_min_' + type)
                 + '&ax=' + JS_SCtrl.gi('angle_max_' + type)
-                + '&se=' + (document.getElementById('sync_' + type).disabled ? 0 : 1)
+                + '&se=' + (document.getElementById('sync_' + type).disabled ? 1 : 0)
                 + '&sv=' + JS_SCtrl.gi('sync_' + type)
                 + '&r=' + (document.getElementById('reversal_' + type).checked ? 1 : 0)
             ).then(
