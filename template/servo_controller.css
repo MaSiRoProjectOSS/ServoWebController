@@ -1,3 +1,12 @@
+body {
+    padding: 10px 0 0 20px;
+    font-family: monospace;
+}
+
+ul {
+    margin: 0em;
+}
+
 .pos_abs {
     position: absolute;
 }

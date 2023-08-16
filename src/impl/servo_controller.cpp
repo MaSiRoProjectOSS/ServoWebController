@@ -20,27 +20,102 @@ ServoController::ServoController()
     ESP32PWM::allocateTimer(2);
     ESP32PWM::allocateTimer(3);
 }
-
-void ServoController::attached(int pin)
+void ServoController::init(ConnectType type, int pin)
 {
-    if (true == this->servo.attached()) {
-        this->servo.detach();
+    int index = this->_get_index(type, false);
+    if (0 <= index) {
+        this->pin[index] = pin;
+        this->attach(type);
     }
+}
+int ServoController::_get_index(ConnectType type, bool check_pin)
+{
+    int index = static_cast<int>(type);
+    if (index < 0 || index >= static_cast<int>(ConnectType::_ENUM_MAX)) {
+        index = -1;
+    }
+    if (true == check_pin) {
+        if (0 > this->pin[index]) {
+            index = -1;
+        }
+    }
+    return index;
+}
 
-    if (false == this->servo.attached()) {
-        this->servo.setPeriodHertz(this->PERIOD_HERTZ);
-        this->index = this->servo.attach(pin, this->MIN_PULSE, this->MAX_PULSE);
+bool ServoController::attach(ConnectType type)
+{
+    bool result = false;
+    int index   = this->_get_index(type);
+    if (0 <= index) {
+        if (true == this->servo[index].attached()) {
+            this->servo[index].detach();
+        }
+        if (false == this->servo[index].attached()) {
+            this->servo[index].setPeriodHertz(this->config[index].period);
+            this->servo[index].attach(this->pin[index], this->config[index].pulse_min, this->config[index].pulse_max);
+            result = this->servo[index].attached();
+        }
+    }
+    return result;
+}
+
+int ServoController::set_speed(ConnectType type, int speed)
+{
+    int result = -999;
+    int index  = this->_get_index(type);
+    if (0 <= index) {
+        if (true == this->servo[index].attached()) {
+            if (speed < this->config[index].angle_min) {
+                speed = this->config[index].angle_min;
+            } else if (speed > this->config[index].angle_max) {
+                speed = this->config[index].angle_max;
+            }
+            this->servo[index].write(speed);
+            this->config[index].current = this->servo[index].read();
+            result                      = this->servo[index].read();
+        }
+    }
+    return result;
+}
+int ServoController::get_speed(ConnectType type)
+{
+    int result = -999;
+    int index  = this->_get_index(type);
+    if (0 <= index) {
+        if (true == this->servo[index].attached()) {
+            result = this->servo[index].read();
+        }
+    }
+    return result;
+}
+
+void ServoController::set_config(ConnectType type, ServoConfig request)
+{
+    int index = this->_get_index(type);
+    if (0 <= index) {
+        this->config[index].limit_min   = request.limit_min;
+        this->config[index].limit_max   = request.limit_max;
+        this->config[index].origin      = request.origin;
+        this->config[index].period      = request.period;
+        this->config[index].pulse_min   = request.pulse_min;
+        this->config[index].pulse_max   = request.pulse_max;
+        this->config[index].angle_min   = request.angle_min;
+        this->config[index].angle_max   = request.angle_max;
+        this->config[index].sync_enable = request.sync_enable;
+        this->config[index].sync_value  = request.sync_value;
+        this->config[index].reversal    = request.reversal;
+        // this->config[index].current     = request.current;
     }
 }
 
-void ServoController::set_speed(int speed)
+ServoController::ServoConfig ServoController::get_config(ConnectType type)
 {
-    if (speed < this->MIN_ANGLE) {
-        speed = this->MIN_ANGLE;
-    } else if (speed > this->MAX_ANGLE) {
-        speed = this->MAX_ANGLE;
+    int index = this->_get_index(type);
+    if (0 <= index) {
+        return this->config[index];
+    } else {
+        return ServoConfig();
     }
-    this->servo.write(speed);
 }
 
 } // namespace Driver

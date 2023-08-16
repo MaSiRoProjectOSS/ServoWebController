@@ -18,22 +18,48 @@ namespace Driver
 {
 class ServoController {
 public:
+    enum ConnectType
+    {
+        GROVE = 0,
+        DIP,
+        UNKNOWN,
+        _ENUM_MAX = ConnectType::UNKNOWN
+    };
+    struct ServoConfig {
+    public:
+        int limit_min   = 0;
+        int limit_max   = 180;
+        int origin      = 0;
+        int period      = 20;
+        int pulse_min   = 500;
+        int pulse_max   = 2400;
+        int angle_min   = 0;
+        int angle_max   = 180;
+        int current     = 0;
+        int sync_enable = 0;
+        int sync_value  = 0;
+        int reversal    = 0;
+    };
+
+public:
     ServoController();
+    void init(ConnectType type, int pin);
 
-    void set_speed(int speed);
+    int set_speed(ConnectType type, int speed);
+    int get_speed(ConnectType type);
 
-    void attached(int pin);
+    bool attach(ConnectType type);
 
-    void config();
+    void set_config(ConnectType type, ServoConfig request);
+
+    ServoConfig get_config(ConnectType type);
 
 private:
-    int index;
-    Servo servo;
-    int PERIOD_HERTZ = 40;
-    int MIN_PULSE    = 500;
-    int MAX_PULSE    = 2400;
-    int MIN_ANGLE    = 0;
-    int MAX_ANGLE    = 180;
+    int pin[static_cast<int>(ConnectType::_ENUM_MAX)] = { -1 };
+    Servo servo[static_cast<int>(ConnectType::_ENUM_MAX)];
+    ServoConfig config[static_cast<int>(ConnectType::_ENUM_MAX)];
+
+    int _get_index(ConnectType type, bool check_pin = true);
 };
 
 } // namespace Driver

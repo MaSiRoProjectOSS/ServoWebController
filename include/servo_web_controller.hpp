@@ -18,12 +18,14 @@ namespace MaSiRoProject
 {
 namespace WEB
 {
+using namespace MaSiRoProject::Driver;
 class ServoWebController : public CushyWebServer {
 public:
     bool setup_server(AsyncWebServer *server);
 
 private:
     void json_set_value(AsyncWebServerRequest *request);
+    void json_get_value(AsyncWebServerRequest *request);
     void json_set_config(AsyncWebServerRequest *request);
     void json_get_config(AsyncWebServerRequest *request);
 
@@ -37,7 +39,9 @@ private:
     void html_root(AsyncWebServerRequest *request);
 
 private:
-    MaSiRoProject::Driver::ServoController _controller;
+    ServoController _controller;
+
+    std::string make_json_servo_config(ServoController::ConnectType type, bool append_data);
 };
 
 } // namespace WEB

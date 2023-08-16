@@ -21,15 +21,26 @@ if (!JS_SCtrl) {
     }
 
     var JS_Slider = {
+        get_value: function (type) {
+            return parseInt($('#slider_' + type).roundSlider('option', 'value'));
+        },
         set_value: function (type, val) {
             $('#slider_' + type).roundSlider('option', 'value', val);
             JS_Slider.set_sync_val();
         },
         set_max: function (type, val) {
-            $('#slider_' + type).roundSlider('option', 'max', val);
+            const elm = $('#slider_grove').data('roundSlider');
+            elm.options.max = val;
+            if (val < elm.getValue()) {
+                JS_Slider.set_value(type, val);
+            }
         },
         set_min: function (type, val) {
-            $('#slider_' + type).roundSlider('option', 'min', val);
+            const elm = $('#slider_grove').data('roundSlider');
+            elm.options.min = val;
+            if (val > elm.getValue()) {
+                JS_Slider.set_value(type, val);
+            }
         },
         init_slider: function (id) {
             $(id).roundSlider({
@@ -53,10 +64,10 @@ if (!JS_SCtrl) {
         tip_txt: function (args) {
             var append = '';
             if (args.id == 'slider_grove') {
-                val = (args.value / (grove.angle_max - grove.angle_min)) * 100;
+                val = ((args.value - grove.angle_min) / (grove.angle_max - grove.angle_min)) * 100;
                 append = '<br>' + val.toFixed(0) + '%';
             } else if (args.id == 'slider_dip') {
-                val = (args.value / (dip.angle_max - dip.angle_min)) * 100;
+                val = ((args.value - dip.angle_min) / (dip.angle_max - dip.angle_min)) * 100;
                 append = '<br>' + val.toFixed(0) + '%';
             }
             return args.value + append;
@@ -77,9 +88,9 @@ if (!JS_SCtrl) {
                     val_g = parseInt(s_g.getValue());
                     if (true == s_d.options.disabled) {
                         if (true == dip.reversal) {
-                            s_g.setValue(grove.sync_val - val_g + dip.sync_val);
+                            s_d.setValue(grove.sync_val - val_g + dip.sync_val);
                         } else {
-                            s_g.setValue(val_g - grove.sync_val + dip.sync_val);
+                            s_d.setValue(val_g - grove.sync_val + dip.sync_val);
                         }
                     }
                 }
@@ -87,6 +98,9 @@ if (!JS_SCtrl) {
         },
         update: function () {
             JS_Slider.set_sync_val();
+            JS_Slider.send();
+        },
+        send: function () {
             const s_g = $('#slider_grove').data('roundSlider');
             const s_d = $('#slider_dip').data('roundSlider');
             if (undefined != s_g) {
@@ -106,7 +120,21 @@ if (!JS_SCtrl) {
     }
 
     var JS_SCtrl = {
+        save_before: function (type, data) {
+            data.limit_min = document.getElementById('limit_min_' + type).value;
+            data.limit_max = document.getElementById('limit_max_' + type).value;
+            data.origin = document.getElementById('origin_' + type).value;
+            data.period = document.getElementById('period_' + type).value;
+            data.pulse_min = document.getElementById('pulse_min_' + type).value;
+            data.pulse_max = document.getElementById('pulse_max_' + type).value;
+            data.angle_min = document.getElementById('angle_min_' + type).value;
+            data.angle_max = document.getElementById('angle_max_' + type).value;
+            //data.sync_val = 0;
+            data.current = JS_Slider.get_value(type);
+            data.reversal = document.getElementById('reversal_' + type).checked;
+        },
         save: function (type, data, mode) {
+            JS_SCtrl.save_before(type, data);
             JS_AJAX.get('/set/config' + '?mode=' + mode + '&type=' + type
                 + '&ln=' + data.limit_min
                 + '&lx=' + data.limit_max
@@ -117,7 +145,7 @@ if (!JS_SCtrl) {
                 + '&an=' + data.angle_min
                 + '&ax=' + data.angle_max
                 + '&s=' + data.sync_val
-                + '&r=' + data.reversal
+                + '&r=' + (data.reversal ? 1 : 0)
             ).then(
                 ok => {
                     JS_SCtrl.copy_data(ok.data.dip, dip);
@@ -152,13 +180,13 @@ if (!JS_SCtrl) {
             JS_SCtrl.set_elm_max('limit_min_' + type, val);
             JS_SCtrl.set_elm_max('limit_max_' + type, val);
             JS_SCtrl.set_elm_max('angle_min_' + type, val);
-            JS_SCtrl.set_elm_max('origin_' + type, parseInt(document.getElementById('limit_max_' + type).value));
+            JS_SCtrl.set_limit_max(type, parseInt(document.getElementById('limit_max_' + type).value));
         },
         set_angle_min: function (type, val) {
             JS_SCtrl.set_elm_min('limit_min_' + type, val);
             JS_SCtrl.set_elm_min('limit_max_' + type, val);
             JS_SCtrl.set_elm_min('angle_max_' + type, val);
-            JS_SCtrl.set_elm_min('origin_' + type, parseInt(document.getElementById('limit_min_' + type).value));
+            JS_SCtrl.set_limit_min(type, parseInt(document.getElementById('limit_min_' + type).value));
         },
         change_disabled: function (type, mode) {
             document.getElementById('sync_' + type).disabled = mode;
@@ -177,8 +205,8 @@ if (!JS_SCtrl) {
                 $(id).roundSlider('disable');
                 result = false;
             }
-            grove.sync_val = parseInt($('#slider_grove').roundSlider('option', 'value'));
-            dip.sync_val = parseInt($('#slider_dip').roundSlider('option', 'value'));
+            grove.sync_val = JS_Slider.get_value('grove');
+            dip.sync_val = JS_Slider.get_value('dip');
             return result;
         },
         begin: function () {
@@ -187,17 +215,24 @@ if (!JS_SCtrl) {
                 , error => alert('[' + error.status.messages + ']\\n\\nCommunication failed.\\nPlease try to reboot.')
             );
         },
+        cp: function (src, dst) {
+            if (undefined != src) {
+                dst = src;
+            }
+        },
         copy_data: function (src, dst) {
-            dst.limit_min = src.limit_min;
-            dst.limit_max = src.limit_max;
-            dst.origin = src.origin;
-            dst.period = src.period;
-            dst.pulse_min = src.pulse_min;
-            dst.pulse_max = src.pulse_max;
-            dst.angle_min = src.angle_min;
-            dst.angle_max = src.angle_max;
-            dst.sync_val = src.sync_val;
-            dst.current = src.current;
+            if (undefined != src) {
+                JS_SCtrl.cp(src.limit_min, dst.limit_min);
+                JS_SCtrl.cp(src.limit_max, dst.limit_max);
+                JS_SCtrl.cp(src.origin, dst.origin);
+                JS_SCtrl.cp(src.period, dst.period);
+                JS_SCtrl.cp(src.pulse_min, dst.pulse_min);
+                JS_SCtrl.cp(src.pulse_max, dst.pulse_max);
+                JS_SCtrl.cp(src.angle_min, dst.angle_min);
+                JS_SCtrl.cp(src.angle_max, dst.angle_max);
+                JS_SCtrl.cp(src.sync_val, dst.sync_val);
+                JS_SCtrl.cp(src.current, dst.current);
+            }
         },
         set_config: function (result) {
             JS_SCtrl.copy_data(result.data.grove, grove);
@@ -225,15 +260,17 @@ if (!JS_SCtrl) {
                 JS_SCtrl.change_disabled('dip', !JS_SCtrl.enable_sync('#slider_dip'));
             });
             document.getElementById('max_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', grove.limit_max);
+                JS_Slider.set_value('grove', parseInt(document.getElementById('limit_max_grove').value));
+                JS_Slider.send();
             });
             document.getElementById('reset_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', grove.origin);
+                JS_Slider.set_value('grove', parseInt(document.getElementById('origin_grove').value));
+                JS_Slider.send();
             });
             document.getElementById('min_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', grove.limit_min);
+                JS_Slider.set_value('grove', parseInt(document.getElementById('limit_min_grove').value));
+                JS_Slider.send();
             });
-
             document.getElementById('save_grove').addEventListener('click', () => {
                 JS_SCtrl.save('grove', grove, 0);
             });
@@ -255,15 +292,17 @@ if (!JS_SCtrl) {
                 JS_SCtrl.change_disabled('grove', !JS_SCtrl.enable_sync('#slider_grove'));
             });
             document.getElementById('max_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', dip.limit_max);
+                JS_Slider.set_value('dip', parseInt(document.getElementById('limit_max_dip').value));
+                JS_Slider.send();
             });
             document.getElementById('reset_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', dip.origin);
+                JS_Slider.set_value('dip', parseInt(document.getElementById('origin_dip').value));
+                JS_Slider.send();
             });
             document.getElementById('min_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', dip.limit_min);
+                JS_Slider.set_value('dip', parseInt(document.getElementById('limit_min_dip').value));
+                JS_Slider.send();
             });
-
             document.getElementById('save_dip').addEventListener('click', () => {
                 JS_SCtrl.save('dip', dip, 0);
             });
