@@ -25,10 +25,7 @@ public:
 private:
     void json_set_value(AsyncWebServerRequest *request);
     void json_set_config(AsyncWebServerRequest *request);
-    void json_get_setting(AsyncWebServerRequest *request);
-    void json_update_servo(AsyncWebServerRequest *request);
-    void json_update_config(AsyncWebServerRequest *request);
-    void json_save(AsyncWebServerRequest *request);
+    void json_get_config(AsyncWebServerRequest *request);
 
     void js_roundslider(AsyncWebServerRequest *request);
     void js_jquery(AsyncWebServerRequest *request);

@@ -69,9 +69,9 @@ This system uses the following libraries.
 * [fastled/FastLED](https://github.com/Makuna/NeoPixelBus?utm_source=platformio&utm_medium=piohome)
 * [madhephaestus/ESP32Servo](https://www.arduinolibraries.info/libraries/esp32-servo)
 * [jQuery](https://jquery.com/)
-  * ver. 1.11.3
+  * jquery-3.7.0
 * [roundSlider.js](https://roundsliderui.com/)
-  * ver. 1.6.1
+  * ver.1.6.1
 
 ## Changelog
 

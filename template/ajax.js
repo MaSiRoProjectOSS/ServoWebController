@@ -4,33 +4,98 @@ if (!JS_AJAX) {
         get: function (url) { return JS_AJAX.debug_send("get", url); },
         debug_send: function (method, url) {
             return new Promise((resolve, reject) => {
-                if ("/get/config" == url) {
+                if (0 <= url.indexOf("/set/value")) {
                     resolve({
                         subject: url,
                         result: 'OK', status: {
-                            num: 202, messages: 'Timeout', data: {
-                                grove: {
-                                    limit_min: 11,
-                                    limit_max: 172,
-                                    origin: 13,
-                                    period: 24,
-                                    pulse_min: 105,
-                                    pulse_max: 2206,
-                                    angle_min: 7,
-                                    angle_max: 188,
-                                    current: 9
-                                },
-                                dip: {
-                                    limit_min: 20,
-                                    limit_max: 161,
-                                    origin: 32,
-                                    period: 23,
-                                    pulse_min: 304,
-                                    pulse_max: 4405,
-                                    angle_min: 6,
-                                    angle_max: 187,
-                                    current: 8
-                                }
+                            num: 202, messages: ''
+                        },
+                        data: {
+                            grove: {
+                                limit_min: 11,
+                                limit_max: 172,
+                                origin: 13,
+                                period: 24,
+                                pulse_min: 105,
+                                pulse_max: 2206,
+                                angle_min: 7,
+                                angle_max: 188,
+                                current: 9
+                            },
+                            dip: {
+                                limit_min: 20,
+                                limit_max: 161,
+                                origin: 32,
+                                period: 23,
+                                pulse_min: 304,
+                                pulse_max: 4405,
+                                angle_min: 6,
+                                angle_max: 187,
+                                current: 8
+                            }
+                        }
+                    });
+
+                } else if (0 <= url.indexOf("/set/config")) {
+                    resolve({
+                        subject: url,
+                        result: 'OK', status: {
+                            num: 202, messages: ''
+                        },
+                        data: {
+                            grove: {
+                                limit_min: 11,
+                                limit_max: 172,
+                                origin: 13,
+                                period: 24,
+                                pulse_min: 105,
+                                pulse_max: 2206,
+                                angle_min: 7,
+                                angle_max: 188,
+                                current: 9
+                            },
+                            dip: {
+                                limit_min: 20,
+                                limit_max: 161,
+                                origin: 32,
+                                period: 23,
+                                pulse_min: 304,
+                                pulse_max: 4405,
+                                angle_min: 6,
+                                angle_max: 187,
+                                current: 8
+                            }
+                        }
+                    });
+
+                } else if ("/get/config" == url) {
+                    resolve({
+                        subject: url,
+                        result: 'OK', status: {
+                            num: 202, messages: ''
+                        },
+                        data: {
+                            grove: {
+                                limit_min: 11,
+                                limit_max: 172,
+                                origin: 13,
+                                period: 24,
+                                pulse_min: 105,
+                                pulse_max: 2206,
+                                angle_min: 7,
+                                angle_max: 188,
+                                current: 9
+                            },
+                            dip: {
+                                limit_min: 20,
+                                limit_max: 161,
+                                origin: 32,
+                                period: 23,
+                                pulse_min: 304,
+                                pulse_max: 4405,
+                                angle_min: 6,
+                                angle_max: 187,
+                                current: 8
                             }
                         }
                     });
