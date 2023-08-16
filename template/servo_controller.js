@@ -22,18 +22,18 @@ if (!JS_SCtrl) {
 
     var JS_Slider = {
         set_value: function (type, val) {
-            $("#slider_" + type).roundSlider("option", "value", val);
+            $('#slider_' + type).roundSlider('option', 'value', val);
             JS_Slider.set_sync_val();
         },
         set_max: function (type, val) {
-            $("#slider_" + type).roundSlider("option", "max", val);
+            $('#slider_' + type).roundSlider('option', 'max', val);
         },
         set_min: function (type, val) {
-            $("#slider_" + type).roundSlider("option", "min", val);
+            $('#slider_' + type).roundSlider('option', 'min', val);
         },
         init_slider: function (id) {
             $(id).roundSlider({
-                animation: false,
+                animation: true,
                 circleShape: 'quarter-bottom-left',
                 sliderType: 'min-range',
                 showTooltip: false,
@@ -43,7 +43,7 @@ if (!JS_SCtrl) {
                 showTooltip: true,
                 svgMode: true,
                 tooltipFormat: JS_Slider.tip_txt,
-                update: JS_Slider.changed,
+                update: JS_Slider.update,
                 mouseScrollAction: true,
                 keyboardAction: true,
                 radius: 120,
@@ -52,7 +52,6 @@ if (!JS_SCtrl) {
         },
         tip_txt: function (args) {
             var append = '';
-
             if (args.id == 'slider_grove') {
                 val = (args.value / (grove.angle_max - grove.angle_min)) * 100;
                 append = '<br>' + val.toFixed(0) + '%';
@@ -60,7 +59,6 @@ if (!JS_SCtrl) {
                 val = (args.value / (dip.angle_max - dip.angle_min)) * 100;
                 append = '<br>' + val.toFixed(0) + '%';
             }
-
             return args.value + append;
         },
         set_sync_val: function () {
@@ -87,20 +85,46 @@ if (!JS_SCtrl) {
                 }
             }
         },
-        changed: function () {
+        update: function () {
             JS_Slider.set_sync_val();
+            const s_g = $('#slider_grove').data('roundSlider');
+            const s_d = $('#slider_dip').data('roundSlider');
+            if (undefined != s_g) {
+                if (undefined != s_d) {
+                    let val_g = parseInt(s_g.getValue());
+                    let val_d = parseInt(s_d.getValue());
+                    JS_AJAX.get('/set/value' + '?grove=' + val_g + '&dip=' + val_d).then(
+                        ok => {
+                            grove.current = ok.data.grove;
+                            dip.current = ok.data.dip;
+                        }
+                        , error => alert(error.status.messages)
+                    );
+                }
+            }
         }
     }
 
     var JS_SCtrl = {
-        print: function (name) {
-
-            console.log(name);
-            console.log('GROVE');
-            console.log(grove);
-            console.log('DIP');
-            console.log(dip);
-
+        save: function (type, data, mode) {
+            JS_AJAX.get('/set/config' + '?mode=' + mode + '&type=' + type
+                + '&ln=' + data.limit_min
+                + '&lx=' + data.limit_max
+                + '&o=' + data.origin
+                + '&h=' + data.period
+                + '&pn=' + data.pulse_min
+                + '&px=' + data.pulse_max
+                + '&an=' + data.angle_min
+                + '&ax=' + data.angle_max
+                + '&s=' + data.sync_val
+                + '&r=' + data.reversal
+            ).then(
+                ok => {
+                    JS_SCtrl.copy_data(ok.data.dip, dip);
+                    JS_SCtrl.init_elm('dip', dip);
+                }
+                , error => alert(error.status.messages)
+            );
         },
         set_elm_max: function (id, val) {
             const elm = document.getElementById(id);
@@ -153,14 +177,14 @@ if (!JS_SCtrl) {
                 $(id).roundSlider('disable');
                 result = false;
             }
-            grove.sync_val = parseInt($("#slider_grove").roundSlider("option", "value"));
-            dip.sync_val = parseInt($("#slider_dip").roundSlider("option", "value"));
+            grove.sync_val = parseInt($('#slider_grove').roundSlider('option', 'value'));
+            dip.sync_val = parseInt($('#slider_dip').roundSlider('option', 'value'));
             return result;
         },
         begin: function () {
             JS_AJAX.get('/get/config').then(
                 ok => JS_SCtrl.set_config(ok)
-                , error => alert("[" + error.status.messages + "]\n\nCommunication failed.\nPlease try to reboot.")
+                , error => alert('[' + error.status.messages + ']\\n\\nCommunication failed.\\nPlease try to reboot.')
             );
         },
         copy_data: function (src, dst) {
@@ -176,12 +200,8 @@ if (!JS_SCtrl) {
             dst.current = src.current;
         },
         set_config: function (result) {
-            JS_SCtrl.copy_data(result.status.data.grove, grove);
-            JS_SCtrl.copy_data(result.status.data.dip, dip);
-            console.log('GROVE');
-            console.log(result.status.data.grove);
-            console.log('DIP');
-            console.log(result.status.data.dip);
+            JS_SCtrl.copy_data(result.data.grove, grove);
+            JS_SCtrl.copy_data(result.data.dip, dip);
             JS_SCtrl.open();
         },
         limit_vale: function (data, val) {
@@ -192,7 +212,7 @@ if (!JS_SCtrl) {
         open: function () {
             let elements = document.getElementsByClassName('types');
             Array.prototype.forEach.call(elements, function (element) {
-                element.classList.remove("visibility_hidden");
+                element.classList.remove('visibility_hidden');
             });
             document.getElementById('reversal_dip').addEventListener('change', () => {
                 document.getElementById('reversal_grove').checked = document.getElementById('reversal_dip').checked;;
@@ -215,16 +235,19 @@ if (!JS_SCtrl) {
             });
 
             document.getElementById('save_grove').addEventListener('click', () => {
-                // TODO
-                JS_SCtrl.print('save_grove');
+                JS_SCtrl.save('grove', grove, 0);
             });
             document.getElementById('attach_grove').addEventListener('click', () => {
-                // TODO
-                JS_SCtrl.print('attach_grove');
+                JS_SCtrl.save('grove', grove, 1);
             });
             document.getElementById('load_grove').addEventListener('click', () => {
-                // TODO
-                JS_SCtrl.print('load_grove');
+                JS_AJAX.get('/get/config').then(
+                    ok => {
+                        JS_SCtrl.copy_data(ok.data.grove, grove);
+                        JS_SCtrl.init_elm('grove', grove);
+                    }
+                    , error => alert(error.status.messages)
+                );
             });
 
             document.getElementById('sync_dip').addEventListener('click', () => {
@@ -242,16 +265,19 @@ if (!JS_SCtrl) {
             });
 
             document.getElementById('save_dip').addEventListener('click', () => {
-                // TODO
-                JS_SCtrl.print('save_dip');
+                JS_SCtrl.save('dip', dip, 0);
             });
             document.getElementById('attach_dip').addEventListener('click', () => {
-                // TODO
-                JS_SCtrl.print('attach_dip');
+                JS_SCtrl.save('dip', dip, 1);
             });
             document.getElementById('load_dip').addEventListener('click', () => {
-                // TODO
-                JS_SCtrl.print('load_dip');
+                JS_AJAX.get('/get/config').then(
+                    ok => {
+                        JS_SCtrl.copy_data(ok.data.dip, dip);
+                        JS_SCtrl.init_elm('dip', dip);
+                    }
+                    , error => alert(error.status.messages)
+                );
             });
 
             document.getElementById('limit_min_grove').addEventListener('change', (event) => {
@@ -315,12 +341,18 @@ if (!JS_SCtrl) {
                 dip.angle_max = parseInt(event.currentTarget.value);
                 JS_SCtrl.set_angle_max('dip', dip.angle_max);
             });
+            JS_Slider.init_slider('#slider_grove');
+            JS_Slider.init_slider('#slider_dip');
 
-            JS_SCtrl.init_elm('grove', grove);
-            JS_SCtrl.init_elm('dip', dip);
+            JS_SCtrl.set_setting('grove', grove);
+            JS_SCtrl.set_setting('dip', dip);
+        },
+        set_setting: function (type, data) {
+            JS_SCtrl.init_elm(type, data);
+            data.current = JS_SCtrl.limit_vale(data, data.current);
+            JS_Slider.set_value(type, data.current);
         },
         init_elm: function (type, data) {
-            JS_Slider.init_slider('#slider_' + type);
             JS_SCtrl.set_angle_min(type, data.angle_min);
             JS_SCtrl.set_angle_max(type, data.angle_max);
             JS_SCtrl.set_limit_min(type, data.limit_min);
@@ -335,8 +367,6 @@ if (!JS_SCtrl) {
             document.getElementById('pulse_max_' + type).value = data.pulse_max;
             document.getElementById('period_' + type).value = data.period;
             document.getElementById('origin_' + type).value = data.origin;
-            data.current = JS_SCtrl.limit_vale(data, data.current);
-            JS_Slider.set_value(type, data.current);
         }
     }
 }
