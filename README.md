@@ -68,6 +68,7 @@ This system uses the following libraries.
 * [m5stack/M5Atom](https://github.com/m5stack/M5Atom?utm_source=platformio&utm_medium=piohome)
 * [fastled/FastLED](https://github.com/Makuna/NeoPixelBus?utm_source=platformio&utm_medium=piohome)
 * [madhephaestus/ESP32Servo](https://www.arduinolibraries.info/libraries/esp32-servo)
+* [MaSiRoProjectOSS/CushyWebServer](https://github.com/MaSiRoProjectOSS/CushyWebServer)
 * [jQuery](https://jquery.com/)
   * jquery-3.7.0
 * [roundSlider.js](https://roundsliderui.com/)
