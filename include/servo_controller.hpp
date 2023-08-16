@@ -30,7 +30,7 @@ public:
         int limit_min   = 5;
         int limit_max   = 175;
         int origin      = 5;
-        int period      = 20;
+        int period      = 50;
         int pulse_min   = 500;
         int pulse_max   = 2400;
         int angle_min   = 0;
