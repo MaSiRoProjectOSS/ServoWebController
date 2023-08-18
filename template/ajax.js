@@ -1,5 +1,36 @@
 if (!JS_AJAX) {
     var JS_AJAX = {
+        data: {
+            grove: {
+                angle_max: 180,
+                angle_min: 0,
+                current: 0,
+                limit_max: 180,
+                limit_min: 0,
+                origin: 0,
+                period: 20,
+                pulse_max: 2400,
+                pulse_min: 500,
+                reversal: 0,
+                sync_enable: 0,
+                sync_value: 0
+            },
+            dip: {
+                angle_max: 180,
+                angle_min: 0,
+                current: 0,
+                limit_max: 180,
+                limit_min: 0,
+                origin: 0,
+                period: 20,
+                pulse_max: 2400,
+                pulse_min: 500,
+                reversal: 0,
+                sync_enable: 0,
+                sync_value: 0
+            }
+        },
+
         post: function (url) { return JS_AJAX.debug_send("post", url); },
         get: function (url) { return JS_AJAX.debug_send("get", url); },
         debug_send: function (method, url) {
@@ -13,32 +44,32 @@ if (!JS_AJAX) {
                         },
                         data: {
                             grove: {
-                                angle_max: 180,
-                                angle_min: 0,
-                                current: 0,
-                                limit_max: 180,
-                                limit_min: 0,
-                                origin: 0,
-                                period: 20,
-                                pulse_max: 2400,
-                                pulse_min: 500,
-                                reversal: 0,
-                                sync_enable: 0,
-                                sync_value: 0
+                                angle_max: JS_AJAX.data.grove.angle_max,
+                                angle_min: JS_AJAX.data.grove.angle_max,
+                                current: JS_AJAX.data.grove.current,
+                                limit_max: JS_AJAX.data.grove.limit_max,
+                                limit_min: JS_AJAX.data.grove.limit_min,
+                                origin: JS_AJAX.data.grove.origin,
+                                period: JS_AJAX.data.grove.period,
+                                pulse_max: JS_AJAX.data.grove.pulse_max,
+                                pulse_min: JS_AJAX.data.grove.pulse_min,
+                                reversal: JS_AJAX.data.grove.reversal,
+                                sync_enable: JS_AJAX.data.grove.sync_enable,
+                                sync_value: JS_AJAX.data.grove.sync_value
                             },
                             dip: {
-                                angle_max: 180,
-                                angle_min: 0,
-                                current: 0,
-                                limit_max: 180,
-                                limit_min: 0,
-                                origin: 0,
-                                period: 20,
-                                pulse_max: 2400,
-                                pulse_min: 500,
-                                reversal: 0,
-                                sync_enable: 0,
-                                sync_value: 0
+                                angle_max: JS_AJAX.data.dip.angle_max,
+                                angle_min: JS_AJAX.data.dip.angle_max,
+                                current: JS_AJAX.data.dip.current,
+                                limit_max: JS_AJAX.data.dip.limit_max,
+                                limit_min: JS_AJAX.data.dip.limit_min,
+                                origin: JS_AJAX.data.dip.origin,
+                                period: JS_AJAX.data.dip.period,
+                                pulse_max: JS_AJAX.data.dip.pulse_max,
+                                pulse_min: JS_AJAX.data.dip.pulse_min,
+                                reversal: JS_AJAX.data.dip.reversal,
+                                sync_enable: JS_AJAX.data.dip.sync_enable,
+                                sync_value: JS_AJAX.data.dip.sync_value
                             }
                         }
                     });
@@ -82,39 +113,66 @@ if (!JS_AJAX) {
                     });
 
                 } else if (0 <= url.indexOf("/config/clear")) {
+                    JS_AJAX.data.grove.angle_max = 180;
+                    JS_AJAX.data.grove.angle_max = 0;
+                    JS_AJAX.data.grove.current = 0;
+                    JS_AJAX.data.grove.limit_max = 180;
+                    JS_AJAX.data.grove.limit_min = 0;
+                    JS_AJAX.data.grove.origin = 0;
+                    JS_AJAX.data.grove.period = 0;
+                    JS_AJAX.data.grove.pulse_max = 2400;
+                    JS_AJAX.data.grove.pulse_min = 500;
+                    JS_AJAX.data.grove.reversal = 0;
+                    JS_AJAX.data.grove.sync_enable = 0;
+                    JS_AJAX.data.grove.sync_value = 0;
+
+                    JS_AJAX.data.dip.angle_max = 180;
+                    JS_AJAX.data.dip.angle_max = 0;
+                    JS_AJAX.data.dip.current = 0;
+                    JS_AJAX.data.dip.limit_max = 180;
+                    JS_AJAX.data.dip.limit_min = 0;
+                    JS_AJAX.data.dip.origin = 0;
+                    JS_AJAX.data.dip.period = 0;
+                    JS_AJAX.data.dip.pulse_max = 2400;
+                    JS_AJAX.data.dip.pulse_min = 500;
+                    JS_AJAX.data.dip.reversal = 0;
+                    JS_AJAX.data.dip.sync_enable = 0;
+                    JS_AJAX.data.dip.sync_value = 0;
+
                     resolve({
                         subject: url,
                         result: 'OK', status: {
                             num: 202, messages: ''
                         },
                         data: {
+
                             grove: {
-                                angle_max: 180,
-                                angle_min: 0,
-                                current: 0,
-                                limit_max: 180,
-                                limit_min: 0,
-                                origin: 0,
-                                period: 20,
-                                pulse_max: 2400,
-                                pulse_min: 500,
-                                reversal: 0,
-                                sync_enable: 0,
-                                sync_value: 0
+                                angle_max: JS_AJAX.data.grove.angle_max,
+                                angle_min: JS_AJAX.data.grove.angle_max,
+                                current: JS_AJAX.data.grove.current,
+                                limit_max: JS_AJAX.data.grove.limit_max,
+                                limit_min: JS_AJAX.data.grove.limit_min,
+                                origin: JS_AJAX.data.grove.origin,
+                                period: JS_AJAX.data.grove.period,
+                                pulse_max: JS_AJAX.data.grove.pulse_max,
+                                pulse_min: JS_AJAX.data.grove.pulse_min,
+                                reversal: JS_AJAX.data.grove.reversal,
+                                sync_enable: JS_AJAX.data.grove.sync_enable,
+                                sync_value: JS_AJAX.data.grove.sync_value
                             },
                             dip: {
-                                angle_max: 180,
-                                angle_min: 0,
-                                current: 0,
-                                limit_max: 180,
-                                limit_min: 0,
-                                origin: 0,
-                                period: 20,
-                                pulse_max: 2400,
-                                pulse_min: 500,
-                                reversal: 0,
-                                sync_enable: 0,
-                                sync_value: 0
+                                angle_max: JS_AJAX.data.dip.angle_max,
+                                angle_min: JS_AJAX.data.dip.angle_max,
+                                current: JS_AJAX.data.dip.current,
+                                limit_max: JS_AJAX.data.dip.limit_max,
+                                limit_min: JS_AJAX.data.dip.limit_min,
+                                origin: JS_AJAX.data.dip.origin,
+                                period: JS_AJAX.data.dip.period,
+                                pulse_max: JS_AJAX.data.dip.pulse_max,
+                                pulse_min: JS_AJAX.data.dip.pulse_min,
+                                reversal: JS_AJAX.data.dip.reversal,
+                                sync_enable: JS_AJAX.data.dip.sync_enable,
+                                sync_value: JS_AJAX.data.dip.sync_value
                             }
                         }
                     });
@@ -127,32 +185,32 @@ if (!JS_AJAX) {
                         },
                         data: {
                             grove: {
-                                angle_max: 300,
-                                angle_min: 0,
-                                current: 150,
-                                limit_max: 200,
-                                limit_min: 100,
-                                origin: 175,
-                                period: 30,
-                                pulse_max: 2400,
-                                pulse_min: 500,
-                                reversal: 0,
-                                sync_enable: 0,
-                                sync_value: 150
+                                angle_max: JS_AJAX.data.grove.angle_max,
+                                angle_min: JS_AJAX.data.grove.angle_max,
+                                current: JS_AJAX.data.grove.current,
+                                limit_max: JS_AJAX.data.grove.limit_max,
+                                limit_min: JS_AJAX.data.grove.limit_min,
+                                origin: JS_AJAX.data.grove.origin,
+                                period: JS_AJAX.data.grove.period,
+                                pulse_max: JS_AJAX.data.grove.pulse_max,
+                                pulse_min: JS_AJAX.data.grove.pulse_min,
+                                reversal: JS_AJAX.data.grove.reversal,
+                                sync_enable: JS_AJAX.data.grove.sync_enable,
+                                sync_value: JS_AJAX.data.grove.sync_value
                             },
                             dip: {
-                                angle_max: 400,
-                                angle_min: 100,
-                                current: 250,
-                                limit_max: 300,
-                                limit_min: 200,
-                                origin: 225,
-                                period: 40,
-                                pulse_max: 2500,
-                                pulse_min: 400,
-                                reversal: 1,
-                                sync_enable: 1,
-                                sync_value: 250
+                                angle_max: JS_AJAX.data.dip.angle_max,
+                                angle_min: JS_AJAX.data.dip.angle_max,
+                                current: JS_AJAX.data.dip.current,
+                                limit_max: JS_AJAX.data.dip.limit_max,
+                                limit_min: JS_AJAX.data.dip.limit_min,
+                                origin: JS_AJAX.data.dip.origin,
+                                period: JS_AJAX.data.dip.period,
+                                pulse_max: JS_AJAX.data.dip.pulse_max,
+                                pulse_min: JS_AJAX.data.dip.pulse_min,
+                                reversal: JS_AJAX.data.dip.reversal,
+                                sync_enable: JS_AJAX.data.dip.sync_enable,
+                                sync_value: JS_AJAX.data.dip.sync_value
                             }
                         }
                     });

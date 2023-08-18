@@ -118,6 +118,12 @@ Kindly provide the details by creating a new issue.
 
 ## Roadmap
 
+* support all PINs
+* select running mode each servo
+* add&delete servo settings
+
+
+<--
 Update irregularly.
 
 <div style="display: flex">
@@ -125,6 +131,7 @@ Update irregularly.
     <span style="">Next Update&nbsp;:&nbsp; </span>
     <span style="">No plans.</span>
 </div>
+-->
 
 
 ## Contributing
