@@ -27,6 +27,8 @@ public:
     };
     struct ServoConfig {
     public:
+        String name     = "";
+        int gp          = -1;
         int limit_min   = 5;
         int limit_max   = 175;
         int origin      = 5;
@@ -39,6 +41,8 @@ public:
         int sync_enable = 0;
         int sync_value  = 0;
         int reversal    = 0;
+
+        int running = 1;
 
         bool initialize_at_startup = false;
     };

@@ -43,7 +43,7 @@ if (!JS_AJAX) {
                         }
                     });
 
-                } else if (0 <= url.indexOf("/set/config")) {
+                } else if (0 <= url.indexOf("/config/set")) {
                     resolve({
                         subject: url,
                         result: 'OK', status: {
@@ -81,7 +81,45 @@ if (!JS_AJAX) {
                         }
                     });
 
-                } else if ("/get/config" == url) {
+                } else if (0 <= url.indexOf("/config/clear")) {
+                    resolve({
+                        subject: url,
+                        result: 'OK', status: {
+                            num: 202, messages: ''
+                        },
+                        data: {
+                            grove: {
+                                angle_max: 180,
+                                angle_min: 0,
+                                current: 0,
+                                limit_max: 180,
+                                limit_min: 0,
+                                origin: 0,
+                                period: 20,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 0
+                            },
+                            dip: {
+                                angle_max: 180,
+                                angle_min: 0,
+                                current: 0,
+                                limit_max: 180,
+                                limit_min: 0,
+                                origin: 0,
+                                period: 20,
+                                pulse_max: 2400,
+                                pulse_min: 500,
+                                reversal: 0,
+                                sync_enable: 0,
+                                sync_value: 0
+                            }
+                        }
+                    });
+
+                } else if ("/config/get" == url) {
                     resolve({
                         subject: url,
                         result: 'OK', status: {

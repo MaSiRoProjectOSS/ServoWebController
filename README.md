@@ -77,7 +77,8 @@ This system is compiled using PlatformIO. Please install the extension from VS C
 - Press the MAX button to set it to the same value as the limit(max).
 - Press the MIN button to set it to the same value as the limit(min).
 - Press the RESET button to set it to the same value as the zero-point.
-- Press the SAVE button to store the settings in a file. (Not yet implemented)
+- Press the SAVE button to store the settings in a file.
+- Press the FORGET button to delete a settings file.
 - Press the reattach button to reconnect with settings from ServoSetting.
 - Press the default button to load settings saved on the microcontroller.
 
