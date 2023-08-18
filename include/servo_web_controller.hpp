@@ -28,6 +28,7 @@ private:
     void json_get_value(AsyncWebServerRequest *request);
     void json_set_config(AsyncWebServerRequest *request);
     void json_get_config(AsyncWebServerRequest *request);
+    void json_clear_config(AsyncWebServerRequest *request);
 
     void js_roundslider(AsyncWebServerRequest *request);
     void js_jquery(AsyncWebServerRequest *request);
@@ -42,6 +43,12 @@ private:
     ServoController _controller;
 
     std::string make_json_servo_config(ServoController::ConnectType type, bool append_data);
+
+    String setting_file_path = "/servo_setting.json";
+    bool _load_setting_file();
+    bool _save_setting_file();
+    bool _delete_setting_file();
+    int _get_num(String text, int default_value);
 };
 
 } // namespace WEB

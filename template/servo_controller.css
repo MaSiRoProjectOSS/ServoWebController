@@ -11,16 +11,74 @@ ul {
     position: absolute;
 }
 
+.setting_form {
+    width: 5em;
+}
+
 .types {
     padding: 10px 30px;
     border: 1px dotted;
     margin-right: 20px;
-    overflow: hidden;
+    /* overflow: hidden;*/
     float: left;
     margin-bottom: 20px;
+    /* iOS Safari */
+    -webkit-touch-callout: none;
+    /* Safari */
+    -webkit-user-select: none;
+    /* Konqueror HTML */
+    -khtml-user-select: none;
+    /* Firefox */
+    -moz-user-select: none;
+    /* Internet Explorer/Edge */
+    -ms-user-select: none;
+    /* Non-prefixed version, currently supported by Chrome and Opera */
+    user-select: none;
 }
 
 .control {
     margin-top: 20px;
     margin-right: 70px;
+}
+
+.tooltip {
+    position: relative;
+    cursor: pointer;
+}
+
+.tooltip-text::before {
+    content: '';
+    position: absolute;
+    top: 95%;
+    left: 15%;
+    margin-right: 7px;
+    border: 7px solid transparent;
+    border-top: 7px solid #333;
+}
+
+.tooltip-text {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    left: 50%;
+    transform: translate(-20%, -220%);
+    bottom: -30px;
+    display: inline-block;
+    padding: 5px;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    background: #333;
+    color: #fff;
+    border-radius: 3px;
+    transition: 0.3s ease-in;
+}
+
+.tooltip:hover .tooltip-text {
+    opacity: 1;
+    visibility: visible;
+}
+
+.next_row {
+    clear: left;
 }

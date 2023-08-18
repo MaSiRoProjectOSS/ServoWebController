@@ -26,6 +26,12 @@ void ServoController::init(ConnectType type, int pin)
     if (0 <= index) {
         this->pin[index] = pin;
         this->attach(type);
+        this->config[index].gp = pin;
+        if (ConnectType::DIP == type) {
+            this->config[index].name = "DIP";
+        } else if (ConnectType::GROVE == type) {
+            this->config[index].name = "GROVE";
+        }
         if (true == this->config[index].initialize_at_startup) {
             this->set_speed(type, this->config[index].origin);
         }

@@ -28,8 +28,9 @@ if (!JS_SCtrl) {
                 JS_Slider.set_value(type, val);
             }
         },
-        init_slider: function (id) {
-            $(id).roundSlider({
+        init_slider: function (type, gp) {
+            $('#slider_' + type).roundSlider({
+                name: type,
                 animation: true,
                 circleShape: 'quarter-bottom-left',
                 sliderType: 'min-range',
@@ -104,8 +105,6 @@ if (!JS_SCtrl) {
                     let val_d = parseInt(s_d.getValue());
                     JS_AJAX.get('/set/value' + '?grove=' + val_g + '&dip=' + val_d).then(
                         ok => {
-                            grove.current = ok.data.grove;
-                            dip.current = ok.data.dip;
                         }
                         , error => alert(error.status.messages)
                     );
@@ -118,9 +117,8 @@ if (!JS_SCtrl) {
         gi: function (id) {
             return parseInt(document.getElementById(id).value);
         },
-        save: function (type, data, mode) {
-            var sync_enable = false;
-            JS_AJAX.get('/set/config' + '?mode=' + mode + '&type=' + type
+        save: function (type, mode) {
+            JS_AJAX.get('/config/set' + '?mode=' + mode + '&type=' + type
                 + '&ln=' + JS_SCtrl.gi('limit_min_' + type)
                 + '&lx=' + JS_SCtrl.gi('limit_max_' + type)
                 + '&o=' + JS_SCtrl.gi('origin_' + type)
@@ -218,8 +216,27 @@ if (!JS_SCtrl) {
             return result;
         },
         begin: function () {
-            JS_AJAX.get('/get/config').then(
-                ok => JS_SCtrl.open(ok.data.grove, ok.data.dip)
+            JS_AJAX.get('/config/get').then(
+                ok => {
+                    JS_SCtrl.open('grove', ok.data.grove);
+                    JS_SCtrl.open('dip', ok.data.dip);
+
+                    JS_SCtrl.init_elm('grove', ok.data.grove);
+                    JS_SCtrl.init_elm('dip', ok.data.dip);
+
+
+                    $('#slider_' + 'grove').roundSlider('option', 'value', ok.data.grove.sync_value);
+                    $('#slider_' + 'dip').roundSlider('option', 'value', ok.data.dip.sync_value);
+                    JS_Slider.set_value('grove',
+                        ok.data.grove.sync_enable == 1 ? ok.data.grove.sync_value : ok.data.grove.origin);
+
+                    JS_Slider.set_value('dip',
+                        ok.data.dip.sync_enable == 1 ? ok.data.dip.sync_value : ok.data.dip.origin);
+
+                    JS_SCtrl.set_setting('grove', ok.data.grove);
+                    JS_SCtrl.set_setting('dip', ok.data.dip);
+                    JS_SCtrl.init_body();
+                }
                 , error => alert('[' + error.status.messages + ']\\n\\nCommunication failed.\\nPlease try to reboot.')
             );
         },
@@ -228,134 +245,77 @@ if (!JS_SCtrl) {
             if (val < JS_SCtrl.gi('limit_min_' + type)) { val = JS_SCtrl.gi('limit_min_' + type); }
             return val;
         },
-        open: function (grove, dip) {
-            let elements = document.getElementsByClassName('types');
-            Array.prototype.forEach.call(elements, function (element) {
-                element.classList.remove('visibility_hidden');
-            });
-            document.getElementById('reversal_dip').addEventListener('change', () => {
-                document.getElementById('reversal_grove').checked = document.getElementById('reversal_dip').checked;;
-            });
-            document.getElementById('reversal_grove').addEventListener('change', () => {
-                document.getElementById('reversal_dip').checked = document.getElementById('reversal_grove').checked;;
-            });
-            document.getElementById('sync_grove').addEventListener('click', () => {
-                JS_SCtrl.change_disabled('dip', !JS_SCtrl.enable_sync('#slider_dip'));
-            });
-            document.getElementById('max_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', JS_SCtrl.gi('limit_max_grove'));
-                JS_Slider.send();
-            });
-            document.getElementById('reset_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', JS_SCtrl.gi('origin_grove'));
-                JS_Slider.send();
-            });
-            document.getElementById('min_grove').addEventListener('click', () => {
-                JS_Slider.set_value('grove', JS_SCtrl.gi('limit_min_grove'));
-                JS_Slider.send();
-            });
-            document.getElementById('save_grove').addEventListener('click', () => {
-                JS_SCtrl.save('grove', grove, 0);
-            });
-            document.getElementById('attach_grove').addEventListener('click', () => {
-                JS_SCtrl.save('grove', grove, 1);
-            });
-            document.getElementById('load_grove').addEventListener('click', () => {
-                JS_AJAX.get('/get/config').then(
-                    ok => {
-                        JS_SCtrl.init_elm('grove', ok.data.grove);
+        open: function (type, data) {
+            if (undefined != data) {
+                document.getElementById('type_' + type).classList.remove('visibility_hidden');
+
+                document.getElementById('reversal_' + type).addEventListener('change', () => {
+                    if ("grove" == type) {
+                        document.getElementById('reversal_dip').checked = document.getElementById('reversal_grove').checked;
                     }
-                    , error => alert(error.status.messages)
-                );
-            });
-
-            document.getElementById('sync_dip').addEventListener('click', () => {
-                JS_SCtrl.change_disabled('grove', !JS_SCtrl.enable_sync('#slider_grove'));
-            });
-            document.getElementById('max_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', JS_SCtrl.gi('limit_max_dip'));
-                JS_Slider.send();
-            });
-            document.getElementById('reset_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', JS_SCtrl.gi('origin_dip'));
-                JS_Slider.send();
-            });
-            document.getElementById('min_dip').addEventListener('click', () => {
-                JS_Slider.set_value('dip', JS_SCtrl.gi('limit_min_dip'));
-                JS_Slider.send();
-            });
-            document.getElementById('save_dip').addEventListener('click', () => {
-                JS_SCtrl.save('dip', dip, 0);
-            });
-            document.getElementById('attach_dip').addEventListener('click', () => {
-                JS_SCtrl.save('dip', dip, 1);
-            });
-            document.getElementById('load_dip').addEventListener('click', () => {
-                JS_AJAX.get('/get/config').then(
-                    ok => {
-                        JS_SCtrl.init_elm('dip', ok.data.dip);
+                    else {
+                        document.getElementById('reversal_grove').checked = document.getElementById('reversal_dip').checked;
                     }
-                    , error => alert(error.status.messages)
-                );
-            });
+                });
+                document.getElementById('sync_' + type).addEventListener('click', () => {
+                    if ("grove" == type) {
+                        JS_SCtrl.change_disabled('dip', !JS_SCtrl.enable_sync('#slider_dip'));
+                    } else {
+                        JS_SCtrl.change_disabled('grove', !JS_SCtrl.enable_sync('#slider_grove'));
 
-            document.getElementById('limit_min_grove').addEventListener('change', (event) => {
-                JS_SCtrl.set_limit_min('grove', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('limit_max_grove').addEventListener('change', (event) => {
-                JS_SCtrl.set_limit_max('grove', parseInt(event.currentTarget.value));
-            });
-            //document.getElementById('origin_grove').addEventListener('change', (event) => {
-            //});
-            //document.getElementById('period_grove').addEventListener('change', (event) => {
-            //});
-            document.getElementById('pulse_min_grove').addEventListener('change', (event) => {
-                JS_SCtrl.set_elm_min('pulse_max_grove', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('pulse_max_grove').addEventListener('change', (event) => {
-                JS_SCtrl.set_elm_max('pulse_min_grove', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('angle_min_grove').addEventListener('change', (event) => {
-                JS_SCtrl.set_angle_min('grove', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('angle_max_grove').addEventListener('change', (event) => {
-                JS_SCtrl.set_angle_max('grove', parseInt(event.currentTarget.value));
-            });
+                    }
+                });
+                document.getElementById('max_' + type).addEventListener('click', () => {
+                    JS_Slider.set_value(type, JS_SCtrl.gi('limit_max_' + type));
+                    JS_Slider.send();
+                });
+                document.getElementById('reset_' + type).addEventListener('click', () => {
+                    JS_Slider.set_value(type, JS_SCtrl.gi('origin_' + type));
+                    JS_Slider.send();
+                });
+                document.getElementById('min_' + type).addEventListener('click', () => {
+                    JS_Slider.set_value(type, JS_SCtrl.gi('limit_min_' + type));
+                    JS_Slider.send();
+                });
+                document.getElementById('attach_' + type).addEventListener('click', () => {
+                    JS_SCtrl.save(type, 1);
+                });
+                document.getElementById('load_' + type).addEventListener('click', () => {
+                    JS_AJAX.get('/config/get').then(
+                        ok => {
+                            JS_SCtrl.init_elm(type, ok.data.grove);
+                        }
+                        , error => alert(error.status.messages)
+                    );
+                });
 
-            document.getElementById('limit_min_dip').addEventListener('change', (event) => {
-                JS_SCtrl.set_limit_min('dip', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('limit_max_dip').addEventListener('change', (event) => {
-                JS_SCtrl.set_limit_max('dip', parseInt(event.currentTarget.value));
-            });
-            //document.getElementById('origin_dip').addEventListener('change', (event) => {
-            //});
-            //document.getElementById('period_dip').addEventListener('change', (event) => {
-            //});
-            document.getElementById('pulse_min_dip').addEventListener('change', (event) => {
-                JS_SCtrl.set_elm_min('pulse_max_dip', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('pulse_max_dip').addEventListener('change', (event) => {
-                JS_SCtrl.set_elm_max('pulse_min_dip', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('angle_min_dip').addEventListener('change', (event) => {
-                JS_SCtrl.set_angle_min('dip', parseInt(event.currentTarget.value));
-            });
-            document.getElementById('angle_max_dip').addEventListener('change', (event) => {
-                JS_SCtrl.set_angle_max('dip', parseInt(event.currentTarget.value));
-            });
-            JS_Slider.init_slider('#slider_grove');
-            JS_Slider.init_slider('#slider_dip');
-
-            JS_SCtrl.init_elm('grove', grove);
-            JS_SCtrl.init_elm('dip', dip);
-            JS_SCtrl.set_setting('grove', grove);
-            JS_SCtrl.set_setting('dip', dip);
+                document.getElementById('limit_min_' + type).addEventListener('change', (event) => {
+                    JS_SCtrl.set_limit_min(type, parseInt(event.currentTarget.value));
+                });
+                document.getElementById('limit_max_' + type).addEventListener('change', (event) => {
+                    JS_SCtrl.set_limit_max(type, parseInt(event.currentTarget.value));
+                });
+                //document.getElementById('origin_' + type).addEventListener('change', (event) => {
+                //});
+                //document.getElementById('period_' + type).addEventListener('change', (event) => {
+                //});
+                document.getElementById('pulse_min_' + type).addEventListener('change', (event) => {
+                    JS_SCtrl.set_elm_min('pulse_max_' + type, parseInt(event.currentTarget.value));
+                });
+                document.getElementById('pulse_max_' + type).addEventListener('change', (event) => {
+                    JS_SCtrl.set_elm_max('pulse_min_' + type, parseInt(event.currentTarget.value));
+                });
+                document.getElementById('angle_min_' + type).addEventListener('change', (event) => {
+                    JS_SCtrl.set_angle_min(type, parseInt(event.currentTarget.value));
+                });
+                document.getElementById('angle_max_' + type).addEventListener('change', (event) => {
+                    JS_SCtrl.set_angle_max(type, parseInt(event.currentTarget.value));
+                });
+                JS_Slider.init_slider(type);
+            }
         },
         set_setting: function (type, data) {
             if (undefined != data) {
-                data.current = JS_SCtrl.limit_vale(type, data.current);
-                JS_Slider.set_value(type, data.current);
                 if (undefined != data.reversal) {
                     document.getElementById('reversal_' + type).checked = data.reversal ? true : false;
                 }
@@ -388,6 +348,25 @@ if (!JS_SCtrl) {
                 JS_SCtrl.set_elm('period_' + type, data.period);
                 JS_SCtrl.set_elm('origin_' + type, data.origin);
             }
+        },
+        init_body: function () {
+            document.getElementById('save_data').addEventListener('click', (event) => {
+                JS_SCtrl.save('grove', 0);
+                JS_SCtrl.save('dip', 0);
+            });
+            document.getElementById('forget_data').addEventListener('click', (event) => {
+                JS_AJAX.get('/config/clear').then(
+                    ok => {
+                        if (undefined != ok.data.grove) {
+                            JS_SCtrl.init_elm('grove', ok.data.grove);
+                        }
+                        if (undefined != ok.data.dip) {
+                            JS_SCtrl.init_elm('dip', ok.data.dip);
+                        }
+                    }
+                    , error => alert(error.status.messages)
+                );
+            });
         }
     }
 }
