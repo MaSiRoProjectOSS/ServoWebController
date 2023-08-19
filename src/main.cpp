@@ -16,7 +16,7 @@ MaSiRoProject::WEB::ServoWebController cushy;
 
 void setup()
 {
-    bool enable_serial  = true;
+    bool enable_serial  = false;
     bool enable_i2c     = false;
     bool enable_display = true;
     (void)M5.begin(enable_serial, enable_i2c, enable_display);
