@@ -23,6 +23,8 @@ class ServoWebController : public CushyWebServer {
 public:
     bool setup_server(AsyncWebServer *server);
 
+    IPAddress get_ip_address();
+
 private:
     void json_set_value(AsyncWebServerRequest *request);
     void json_get_value(AsyncWebServerRequest *request);
