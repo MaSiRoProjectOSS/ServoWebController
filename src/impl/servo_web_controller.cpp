@@ -484,6 +484,10 @@ bool ServoWebController::_delete_setting_file()
     }
     return result;
 }
+IPAddress ServoWebController::get_ip_address()
+{
+    return this->get_ip();
+}
 
 } // namespace WEB
 } // namespace MaSiRoProject
